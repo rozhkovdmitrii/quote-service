@@ -21,7 +21,7 @@ fn main() {
 #[tokio::main(flavor = "multi_thread", worker_threads = 8)]
 pub async fn run_quotes_service(config: Config) {
     info!("Initialization begin, read quotes from: {:?}", config.quotes_file());
-    let quotes_storage = quotes_storage::QuotesStorageImpl::new();
+    let quotes_storage = quotes_storage::QuotesStorageImpl::new(config.quotes_file());
     let service = service::Service::new(config, Arc::new(Mutex::new(Box::new(quotes_storage))));
     service.run().await;
 }
