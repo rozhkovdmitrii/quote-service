@@ -1,4 +1,4 @@
-use super::quotes_client;
+use super::client;
 
 use clap;
 use clap::{CommandFactory, Parser, Subcommand};
@@ -32,7 +32,7 @@ impl Cli {
                 port,
                 crap_password,
             }) => {
-                quotes_client::run_quotes_client(ipaddr, port, crap_password);
+                client::run_quotes_client(ipaddr, port, crap_password);
             }
             None => {
                 Self::command().print_help().unwrap();

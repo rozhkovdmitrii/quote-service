@@ -1,7 +1,8 @@
 use clap;
 use clap::{CommandFactory, Parser, Subcommand};
 use log::info;
-use quote_lib::run_quotes_service;
+
+use crate::config::Config;
 use std::path::PathBuf;
 
 #[derive(Subcommand)]
@@ -25,10 +26,8 @@ pub struct Cli {
 }
 
 impl Cli {
-    pub fn execute() {
+    pub fn execute() -> Option<Config> {
         let parsed_cli = Self::parse();
-        info!("Current dir: {:?}", std::env::current_dir());
-
         match &parsed_cli.command {
             Some(Command::Listen {
                 quotes_file,
@@ -36,10 +35,11 @@ impl Cli {
                 crap_password,
             }) => {
                 info!("Quotes source path: {:?}", quotes_file);
-                run_quotes_service(quotes_file, *port, crap_password);
+                Some(Config::new(port, crap_password, quotes_file))
             }
             None => {
                 Self::command().print_help().unwrap();
+                None
             }
         }
     }
