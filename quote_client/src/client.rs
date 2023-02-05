@@ -4,7 +4,6 @@ use quote_lib::{
     network::{read_u64, write_u64},
     pow::PowCalculator,
 };
-use std::time::Duration;
 use tokio;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::TcpStream;

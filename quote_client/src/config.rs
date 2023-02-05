@@ -1,22 +1,17 @@
-use std::net::SocketAddr;
-use std::str::FromStr;
-
 pub struct Config {
-    srv_addr: SocketAddr,
+    srv_addr: String,
     crap_password: String,
 }
 
 impl Config {
-    pub fn new(ipaddr: &String, port: &u16, crap_password: &String) -> Config {
-        let srv_addr = SocketAddr::from_str(format!("{}:{}", ipaddr, port).as_str())
-            .expect(format!("Failed to get socket address from: {}:{}", ipaddr, port).as_str());
+    pub fn new(host: &String, port: &u16, crap_password: &String) -> Config {
         Config {
-            srv_addr,
+            srv_addr: format!("{}:{}", host, port),
             crap_password: crap_password.clone(),
         }
     }
 
-    pub fn srv_addr(&self) -> &SocketAddr {
+    pub fn srv_addr(&self) -> &String {
         &self.srv_addr
     }
 
