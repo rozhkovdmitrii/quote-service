@@ -1,6 +1,5 @@
 use clap;
 use clap::{CommandFactory, Parser, Subcommand};
-use log::info;
 
 use crate::config::Config;
 use std::path::PathBuf;
@@ -10,11 +9,7 @@ enum Command {
     #[clap(arg_required_else_help = true)]
     Listen {
         #[clap(long, value_parser, value_name = "FILE")]
-        quotes_file: PathBuf,
-        #[clap(long, value_parser, value_name = "PORT")]
-        port: u16,
-        #[clap(long, value_parser, value_name = "CRAP_PWD")]
-        crap_password: String,
+        config_file: PathBuf,
     },
 }
 
@@ -29,14 +24,7 @@ impl Cli {
     pub fn execute() -> Option<Config> {
         let parsed_cli = Self::parse();
         match &parsed_cli.command {
-            Some(Command::Listen {
-                quotes_file,
-                port,
-                crap_password,
-            }) => {
-                info!("Quotes source path: {:?}", quotes_file);
-                Some(Config::new(port, crap_password, quotes_file))
-            }
+            Some(Command::Listen { config_file }) => Config::new(config_file).ok(),
             None => {
                 Self::command().print_help().unwrap();
                 None

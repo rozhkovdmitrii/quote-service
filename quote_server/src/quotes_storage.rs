@@ -1,10 +1,9 @@
 use async_trait::async_trait;
-use log::error;
 use rand;
 use rand::distributions::Uniform;
 use rand::rngs::SmallRng;
 use rand::{Rng, SeedableRng};
-use std::io::{BufRead, BufReader, Read};
+use std::io::{BufRead, BufReader};
 use std::mem::swap;
 use std::path::PathBuf;
 use std::{fs, vec};
@@ -20,30 +19,42 @@ pub struct QuotesStorageImpl {
 }
 
 impl QuotesStorageImpl {
-    pub fn new(quotes_file: &PathBuf) -> QuotesStorageImpl {
-        let mut file = fs::File::open(quotes_file).unwrap();
-        let mut reader = BufReader::new(file).lines();
-        let mut quotes: Vec<String> = vec![];
-        let mut buf = String::new();
-        for mut line in reader.filter_map(|line| line.ok()).skip(4) {
-            if line.is_empty() && buf.is_empty() == false {
-                swap(&mut line, &mut buf);
-                quotes.push(line);
-            } else if !line.is_empty() {
-                if !buf.is_empty() {
-                    buf.push('\n')
-                }
-                buf.push_str(&line);
-            }
-        }
-        if !buf.is_empty() {
-            quotes.push(buf);
-        }
-
+    pub fn new(quotes_file: &PathBuf, skip_lines: usize) -> QuotesStorageImpl {
+        let quotes = Self::read_quotes_from_file(quotes_file, skip_lines);
         QuotesStorageImpl {
             quotes,
             rand_range: SmallRng::from_entropy(),
         }
+    }
+
+    fn read_quotes_from_file(quotes_file: &PathBuf, skip_lines: usize) -> Vec<String> {
+        let file = fs::File::open(quotes_file).expect(&format!("Failed open: {:?}", quotes_file));
+        let reader = BufReader::new(file).lines();
+        let mut quotes: Vec<String> = vec![];
+        let mut buf = String::new();
+        let _ = reader
+            .filter_map(|line| line.ok())
+            .skip(skip_lines)
+            .map(|mut line| {
+                if line.is_empty() && buf.is_empty() == false {
+                    swap(&mut line, &mut buf);
+                    quotes.push(line);
+                } else if !line.is_empty() {
+                    if !buf.is_empty() {
+                        buf.push('\n')
+                    }
+                    buf.push_str(&line);
+                }
+                ()
+            })
+            .filter(|_| false)
+            .collect::<()>();
+
+        if !buf.is_empty() {
+            quotes.push(buf);
+        }
+        assert!(!quotes.is_empty(), "Failed to read quotes - empty");
+        quotes
     }
 }
 

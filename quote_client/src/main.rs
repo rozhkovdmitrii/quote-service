@@ -2,7 +2,12 @@ mod cli;
 mod client;
 mod config;
 
+const LOG_CFG: &str = "log4rs.yml";
+
 fn main() {
-    log4rs::init_file("log4rs.yml", Default::default()).unwrap();
+    if let Err(error) = log4rs::init_file(LOG_CFG, Default::default()) {
+        println!("Failed to get log from: {}, error: {}", LOG_CFG, error);
+        return;
+    };
     cli::Cli::execute();
 }

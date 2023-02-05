@@ -1,5 +1,5 @@
+use super::config::Config;
 use super::quotes_storage::QuotesStorage;
-use super::Config;
 use log::{debug, error, info, warn};
 use quote_lib::network::{read_u64, write_u64};
 use quote_lib::pow::check_auth_and_pow;
@@ -49,34 +49,31 @@ impl Service {
         config: Arc<Config>,
         defended_nonce: Arc<Mutex<u64>>,
         quotes: Arc<Mutex<Box<dyn QuotesStorage>>>,
-    ) {
+    ) -> Result<(), ()> {
         let nonce = Service::get_nonce(defended_nonce).await;
         Service::send_nonce(&mut stream, nonce).await;
         let (mut reader, mut writer) = stream.split();
         tokio::time::sleep(Duration::from_secs(5)).await;
 
         info!("Waiting for a bump that proves bot authentication and work");
-
-        let bump_seed = read_u64(&mut reader).await;
-
-        if let Err(error) = bump_seed {
-            error!("Failed to read bump seed: {}", error);
-            return;
-        }
-        let bump_seed = bump_seed.unwrap();
+        let bump_seed = read_u64(&mut reader)
+            .await
+            .map_err(|error| error!("Failed to read bump seed: {}", error))?;
 
         let mut hash = [0; 32];
-        reader.read(&mut hash).await.unwrap(); // TODO: не обработано !!!
+        reader.read(&mut hash).await.map_err(|error| error!("Failed to read hash: {}", error))?;
         let hex_hash = hex::encode(hash);
         debug!("For nonce: {} - got bump seed: {}, and hash: {}", nonce, bump_seed, hex_hash);
-        if !check_auth_and_pow(nonce, config.crap_password(), bump_seed, &hash) {
-            warn!("Failed to check challenge response authentication");
-            return;
-        }
+        check_auth_and_pow(nonce, config.crap_secret(), bump_seed, &hash)
+            .map_err(|_| warn!("Failed to check challenge response authentication"))?;
         info!("Authentication and proof of work checks passed");
         let mut quotes_guard = quotes.lock().await;
         let quote = quotes_guard.get_quote().await;
-        writer.write(quote.as_bytes()).await.unwrap();
+        writer
+            .write(quote.as_bytes())
+            .await
+            .map_err(|error| error!("Failed to write quote: {}", error))?;
+        Ok(())
     }
 
     async fn send_nonce(tcp_stream: &mut TcpStream, nonce: u64) {

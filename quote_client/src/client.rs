@@ -11,7 +11,7 @@ use tokio::net::TcpStream;
 #[tokio::main(flavor = "multi_thread")]
 pub async fn run_quotes_client(ipaddr: &String, port: &u16, crap_password: &String) {
     let client = QuotesClient::new(Config::new(ipaddr, port, crap_password));
-    client.get_quote().await;
+    client.get_quote().await.ok();
 }
 
 pub struct QuotesClient {
@@ -27,39 +27,38 @@ impl QuotesClient {
         }
     }
 
-    pub async fn get_quote(&self) {
+    pub async fn get_quote(&self) -> Result<(), ()> {
         debug!("Connecting to: {}", self.config.srv_addr());
-        let stream = TcpStream::connect(self.config.srv_addr()).await;
-        if let Err(error) = stream {
-            error!("Failed to connect: {} - {}", self.config.srv_addr(), error);
-            return;
-        }
-
-        let mut stream = stream.unwrap();
+        let mut stream = TcpStream::connect(self.config.srv_addr())
+            .await
+            .map_err(|error| error!("Failed to connect: {} - {}", self.config.srv_addr(), error))?;
         let (mut reader, mut writer) = stream.split();
 
-        let nonce = read_u64(&mut reader).await.unwrap();
+        let nonce = read_u64(&mut reader)
+            .await
+            .map_err(|error| error!("Failed to send nonce: {}", error))?;
+        debug!("Got nonce: {}", nonce);
         let (bump_seed, hash) =
             self.pow_calculator.compute_bump_seed(nonce, &self.config.crap_password());
         debug!("Computed bump_seed: {}", bump_seed);
-        write_u64(bump_seed, &mut writer).await.unwrap();
-        match writer.write(&hash).await {
-            Ok(bytes) => debug!("Hash that conforms to all seeds including secret sent: {}", bytes),
-            Err(error) => {
-                error!("Failed to send hash: {}", error);
-                return;
-            }
-        }
+        write_u64(bump_seed, &mut writer)
+            .await
+            .map_err(|error| error!("Failed to send bump_seed: {}", error))?;
+        writer.write(&hash).await.map_err(|error| error!("Failed to send hash: {}", error))?;
+        debug!("Hash that conforms to all seeds including secret sent: {}", &hex::encode(hash));
+
         let mut quote = String::new();
         debug!("Waiting for quote");
 
         if let Err(error) = reader.readable().await {
+            //TODO: rework
             error!("Failed to get quote: {}", error);
         }
         match reader.read_to_string(&mut quote).await {
             Ok(0) => warn!("Connection has been closed remotely, secret is wrong"),
-            Ok(_) => println!("Quote: {}", quote),
+            Ok(_) => println!("Resulting quote: {}", quote),
             Err(error) => error!("Failed to get quote: {}", error),
         }
+        Ok(())
     }
 }

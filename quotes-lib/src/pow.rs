@@ -48,17 +48,21 @@ impl PowCalculator {
 
 pub fn check_auth_and_pow(
     nonce: u64,
-    password: &String,
+    crap_secret: &String,
     bump_seed: u64,
     hash_to_check: &[u8; 32],
-) -> bool {
+) -> Result<(), ()> {
     if !check_prof_of_work(hash_to_check) {
-        return false;
+        return Err(());
     }
     let calculator = PowCalculator::new();
-    let hasher = calculator.construct_hasher(nonce, password);
+    let hasher = calculator.construct_hasher(nonce, crap_secret);
     let hash = calculator.compute_hash_with_seed(bump_seed, &hasher);
-    *hash_to_check == hash
+    if *hash_to_check == hash {
+        Ok(())
+    } else {
+        Err(())
+    }
 }
 
 pub fn check_prof_of_work(hash: &[u8; 32]) -> bool {
