@@ -5,7 +5,7 @@ use quote_lib::network::{call_timed_out, read_u64, write_u64};
 use quote_lib::pow::check_auth_and_pow;
 use std::sync::Arc;
 use std::time::Duration;
-use tokio::io::{AsyncReadExt, AsyncWriteExt};
+use tokio::io::AsyncWriteExt;
 use tokio::net::{TcpListener, TcpStream};
 use tokio::sync::Mutex;
 
@@ -59,12 +59,13 @@ impl Service {
             .await
             .map_err(|error| error!("Failed to read bump seed: {}", error))?;
 
-        let mut hash = [0; 32];
-        reader.read(&mut hash).await.map_err(|error| error!("Failed to read hash: {}", error))?;
-        let hex_hash = hex::encode(hash);
-        debug!("For nonce: {} - got bump seed: {}, and hash: {}", nonce, bump_seed, hex_hash);
-        check_auth_and_pow(nonce, config.crap_secret(), bump_seed, &hash)
+        let hash = check_auth_and_pow(nonce, config.crap_secret(), bump_seed)
             .map_err(|_| warn!("Failed to check challenge response authentication"))?;
+        let hex_hash = hex::encode(hash);
+        debug!(
+            "For nonce: {} - got bump seed: {}, and hash computed: {}",
+            nonce, bump_seed, hex_hash
+        );
         info!("Authentication and proof of work checks passed");
         let mut quotes_guard = quotes.lock().await;
         let quote = quotes_guard.get_quote().await;

@@ -1,0 +1,11 @@
+Dockerfile
+
+.git
+.github
+.gitignore
+.gitmodules
+.dockerfile
+
+target
+
+.idea

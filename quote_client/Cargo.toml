@@ -11,6 +11,5 @@ quote-lib = { path = "../quotes-lib" }
 log4rs = "1.2.0"
 log = "0.4.17"
 tokio = { version = "1.25.0", features = ["full"] }
-bincode = "2.0.0-rc.2"
 sha3 = "0.10.6"
 hex = "0.4.3"

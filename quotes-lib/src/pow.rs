@@ -50,19 +50,14 @@ pub fn check_auth_and_pow(
     nonce: u64,
     crap_secret: &String,
     bump_seed: u64,
-    hash_to_check: &[u8; 32],
-) -> Result<(), ()> {
-    if !check_prof_of_work(hash_to_check) {
-        return Err(());
-    }
+) -> Result<[u8; 32], ()> {
     let calculator = PowCalculator::new();
     let hasher = calculator.construct_hasher(nonce, crap_secret);
     let hash = calculator.compute_hash_with_seed(bump_seed, &hasher);
-    if *hash_to_check == hash {
-        Ok(())
-    } else {
-        Err(())
+    if !check_prof_of_work(&hash) {
+        return Err(());
     }
+    Ok(hash)
 }
 
 pub fn check_prof_of_work(hash: &[u8; 32]) -> bool {

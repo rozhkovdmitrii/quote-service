@@ -9,7 +9,7 @@ enum Command {
     #[clap(arg_required_else_help = true)]
     Listen {
         #[clap(long, value_parser, value_name = "FILE")]
-        config_file: PathBuf,
+        config: PathBuf,
     },
 }
 
@@ -24,7 +24,7 @@ impl Cli {
     pub fn execute() -> Option<Config> {
         let parsed_cli = Self::parse();
         match &parsed_cli.command {
-            Some(Command::Listen { config_file }) => Config::new(config_file).ok(),
+            Some(Command::Listen { config }) => Config::new(config).ok(),
             None => {
                 Self::command().print_help().unwrap();
                 None

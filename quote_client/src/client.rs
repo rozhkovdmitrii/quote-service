@@ -4,13 +4,19 @@ use quote_lib::{
     network::{read_u64, write_u64},
     pow::PowCalculator,
 };
+use std::env;
 use tokio;
-use tokio::io::{AsyncReadExt, AsyncWriteExt};
+use tokio::io::AsyncReadExt;
 use tokio::net::TcpStream;
 
 #[tokio::main(flavor = "multi_thread")]
-pub async fn run_quotes_client(ipaddr: &String, port: &u16, crap_password: &String) {
-    let client = QuotesClient::new(Config::new(ipaddr, port, crap_password));
+pub async fn run_quotes_client(host: &String, port: &u16) {
+    let crap_secret = env::var("CRAP_SECRET");
+    if let Err(error) = crap_secret {
+        error!("Failed to get env 'CRAP_SECRET': {}", error);
+        return;
+    }
+    let client = QuotesClient::new(Config::new(host, port, crap_secret.as_ref().unwrap()));
     client.get_quote().await.ok();
 }
 
@@ -44,8 +50,7 @@ impl QuotesClient {
         write_u64(bump_seed, &mut writer)
             .await
             .map_err(|error| error!("Failed to send bump_seed: {}", error))?;
-        writer.write(&hash).await.map_err(|error| error!("Failed to send hash: {}", error))?;
-        debug!("Hash that conforms to all seeds including secret sent: {}", &hex::encode(hash));
+        debug!("Hash that conforms to all seeds including secret: {}", &hex::encode(hash));
 
         let mut quote = String::new();
         debug!("Waiting for quote");
