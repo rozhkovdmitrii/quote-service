@@ -1,7 +1,7 @@
 use super::config::Config;
 use super::quotes_storage::QuotesStorage;
 use log::{debug, error, info, warn};
-use quote_lib::network::{read_u64, write_u64};
+use quote_lib::network::{call_timed_out, read_u64, write_u64};
 use quote_lib::pow::check_auth_and_pow;
 use std::sync::Arc;
 use std::time::Duration;
@@ -56,7 +56,7 @@ impl Service {
         tokio::time::sleep(Duration::from_secs(5)).await;
 
         info!("Waiting for a bump that proves bot authentication and work");
-        let bump_seed = read_u64(&mut reader)
+        let bump_seed = call_timed_out(read_u64(&mut reader), config.bump_seed_timeout())
             .await
             .map_err(|error| error!("Failed to read bump seed: {}", error))?;
 

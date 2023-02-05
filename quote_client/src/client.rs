@@ -50,10 +50,6 @@ impl QuotesClient {
         let mut quote = String::new();
         debug!("Waiting for quote");
 
-        if let Err(error) = reader.readable().await {
-            //TODO: rework
-            error!("Failed to get quote: {}", error);
-        }
         match reader.read_to_string(&mut quote).await {
             Ok(0) => warn!("Connection has been closed remotely, secret is wrong"),
             Ok(_) => println!("Resulting quote: {}", quote),

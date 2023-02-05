@@ -2,15 +2,18 @@ use log::{error, info};
 use serde;
 use serde_yaml;
 use std::env;
+use std::fmt::{Display, Formatter};
 use std::fs::File;
 use std::io::Read;
 use std::path::PathBuf;
+use std::time::Duration;
 
 #[derive(serde::Deserialize)]
 pub struct Config {
     port: u16,
     quotes_file: PathBuf,
     skip_lines: usize,
+    bump_seed_timeout_millis: u64,
     crap_secret: Option<String>,
 }
 
@@ -46,5 +49,19 @@ impl Config {
 
     pub fn skip_lines(&self) -> usize {
         self.skip_lines
+    }
+
+    pub fn bump_seed_timeout(&self) -> Duration {
+        Duration::from_millis(self.bump_seed_timeout_millis)
+    }
+}
+
+impl Display for Config {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "quotes_file: {:?}, port: {}, skip_lines: {}, bump_seed_timeout: {} ms.",
+            self.quotes_file, self.port, self.skip_lines, self.bump_seed_timeout_millis
+        )
     }
 }
