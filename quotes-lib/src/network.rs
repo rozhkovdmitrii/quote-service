@@ -12,7 +12,7 @@ where F: std::future::Future<Output = Result<u64, io::Error>> {
     tokio::pin!(sleep);
     select! {
         read_result = future =>  read_result,
-        _ = &mut sleep => {
+        _ = sleep => {
             error!("Reading bump_seed timed_out, break connection");
             return Err(io::Error::new(io::ErrorKind::TimedOut, "Future timed out"));
         }

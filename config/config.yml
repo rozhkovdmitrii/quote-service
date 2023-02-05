@@ -1,4 +1,4 @@
 quotes_file: "Words-of-Wisdom.txt"
 skip_lines: 9
 port: 8081
-bump_seed_timeout_millis: 1
+bump_seed_timeout_millis: 5000

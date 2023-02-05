@@ -53,7 +53,6 @@ impl Service {
         let nonce = Service::get_nonce(defended_nonce).await;
         Service::send_nonce(&mut stream, nonce).await;
         let (mut reader, mut writer) = stream.split();
-        tokio::time::sleep(Duration::from_secs(5)).await;
 
         info!("Waiting for a bump that proves bot authentication and work");
         let bump_seed = call_timed_out(read_u64(&mut reader), config.bump_seed_timeout())
