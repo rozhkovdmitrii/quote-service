@@ -18,7 +18,6 @@ impl PowCalculator {
         while !check_prof_of_work(&hash) {
             bump_seed = it.next().unwrap();
             hash = self.compute_hash_with_seed(bump_seed, &orig_hasher);
-            trace!("{:0x?}", hex::encode(hash));
         }
         (bump_seed, hash)
     }
