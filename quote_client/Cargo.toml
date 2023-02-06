@@ -7,9 +7,9 @@ edition = "2021"
 
 [dependencies]
 clap = {version = "4.1.4", features = ["derive", "cargo"]}
-quote-lib = { path = "../quotes-lib" }
+hex = "0.4.3"
 log4rs = "1.2.0"
 log = "0.4.17"
-tokio = { version = "1.25.0", features = ["full"] }
+quote-lib = { path = "../quotes-lib" }
 sha3 = "0.10.6"
-hex = "0.4.3"
+tokio = { version = "1.25.0", features = ["full"] }

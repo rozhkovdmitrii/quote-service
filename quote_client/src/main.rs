@@ -2,7 +2,7 @@ mod cli;
 mod client;
 mod config;
 
-const LOG_CFG: &str = "log4rs.yml";
+const LOG_CFG: &str = "config/log4rs.yml";
 
 fn main() {
     if let Err(error) = log4rs::init_file(LOG_CFG, Default::default()) {

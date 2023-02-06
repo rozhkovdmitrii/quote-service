@@ -8,19 +8,27 @@ Design and implement “Word of Wisdom” tcp server.
 • Docker file should be provided both for the server and for the client that solves the POW challenge
 
 
-# Establish network
+# Using with docker
+
+## Build image
+
+```shell
+docker build . -t rozhkovdmitrii/quotes-service:local
+```
+
+## Establish network
 
 ```shell
 docker network create local
 ```
 
-# Run server
+## Run server
 
 ```shell
-docker run --network local --rm --name quote_server -e CRAP_SECRET=123 rozhkovdmitrii/quotes-service:local quote_server listen --config config.yml
+docker run --network local --rm --name quote_server -e CRAP_SECRET=123 rozhkovdmitrii/quotes-service:local quote_server listen --config config/config.yml
 ```
 
-# Run client
+## Run client
 
 ```shell
 docker run --network local --rm --name quote_client -e CRAP_SECRET=123 rozhkovdmitrii/quotes-service:local quote_client get-quote --host quote_server --port 8081

@@ -7,7 +7,7 @@ use clap::{CommandFactory, Parser, Subcommand};
 enum Command {
     #[clap(arg_required_else_help = true)]
     GetQuote {
-        #[clap(long, value_parser, value_name = "IPV4")]
+        #[clap(long, value_parser, value_name = "HOST")]
         host: String,
         #[clap(long, value_parser, value_name = "PORT")]
         port: u16,
