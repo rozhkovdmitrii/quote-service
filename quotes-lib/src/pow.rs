@@ -1,18 +1,13 @@
-use bincode;
 use hex;
 use log::trace;
-use sha3;
 use sha3::{Digest, Keccak256};
+use std::borrow::Borrow;
 
-pub struct PowCalculator {
-    bincode_cfg: bincode::config::Configuration,
-}
+pub struct PowCalculator {}
 
 impl PowCalculator {
     pub fn new() -> PowCalculator {
-        PowCalculator {
-            bincode_cfg: bincode::config::standard(),
-        }
+        PowCalculator {}
     }
 
     pub fn compute_bump_seed(&self, nonce: u64, password: &String) -> (u64, [u8; 32]) {
@@ -29,8 +24,8 @@ impl PowCalculator {
     }
 
     fn construct_hasher(&self, nonce: u64, password: &String) -> Keccak256 {
-        let mut hasher = sha3::Keccak256::default();
-        let nonce_bytes = bincode::encode_to_vec(nonce, self.bincode_cfg).unwrap();
+        let mut hasher = Keccak256::default();
+        let nonce_bytes = nonce.borrow().to_be_bytes();
         hasher.update(&nonce_bytes);
         hasher.update(password);
         hasher
@@ -38,8 +33,7 @@ impl PowCalculator {
 
     fn compute_hash_with_seed(&self, seed: u64, orig_hasher: &Keccak256) -> [u8; 32] {
         let mut hasher = orig_hasher.clone();
-        //TODO: try to get rid of bincode it can be redundant
-        let nonce_buf = bincode::encode_to_vec(seed, self.bincode_cfg).unwrap();
+        let nonce_buf = seed.borrow().to_be_bytes();
         hasher.update(&nonce_buf);
         let hash = hasher.finalize().into();
         hash
