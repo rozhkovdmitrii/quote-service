@@ -1,12 +1,11 @@
 use async_trait::async_trait;
-use rand;
-use rand::distributions::Uniform;
-use rand::rngs::SmallRng;
-use rand::{Rng, SeedableRng};
-use std::io::{BufRead, BufReader};
-use std::mem::swap;
-use std::path::PathBuf;
-use std::{fs, vec};
+use rand::{distributions::Uniform, rngs::SmallRng, Rng, SeedableRng};
+use std::{
+    io::{BufRead, BufReader},
+    mem::swap,
+    path::PathBuf,
+    {fs, vec},
+};
 
 #[async_trait]
 pub trait QuotesStorage: Sync + Send {

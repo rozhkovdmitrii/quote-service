@@ -5,9 +5,7 @@ use quote_lib::{
     pow::PowCalculator,
 };
 use std::env;
-use tokio;
-use tokio::io::AsyncReadExt;
-use tokio::net::TcpStream;
+use tokio::{io::AsyncReadExt, net::TcpStream};
 
 #[tokio::main(flavor = "multi_thread")]
 pub async fn run_quotes_client(host: &String, port: &u16) {

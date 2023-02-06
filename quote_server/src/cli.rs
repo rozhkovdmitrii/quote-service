@@ -1,7 +1,5 @@
-use clap;
+use super::config::Config;
 use clap::{CommandFactory, Parser, Subcommand};
-
-use crate::config::Config;
 use std::path::PathBuf;
 
 #[derive(Subcommand)]

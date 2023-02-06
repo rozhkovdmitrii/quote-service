@@ -1,6 +1,4 @@
 use super::client;
-
-use clap;
 use clap::{CommandFactory, Parser, Subcommand};
 
 #[derive(Subcommand)]

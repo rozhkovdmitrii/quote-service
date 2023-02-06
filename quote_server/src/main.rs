@@ -5,7 +5,6 @@ mod service;
 
 use log::info;
 use std::sync::Arc;
-use tokio;
 use tokio::sync::Mutex;
 
 const LOG_CFG: &str = "config/log4rs.yml";

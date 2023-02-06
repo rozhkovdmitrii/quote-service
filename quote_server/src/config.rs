@@ -1,12 +1,14 @@
 use log::{error, info};
 use serde;
 use serde_yaml;
-use std::env;
-use std::fmt::{Display, Formatter};
-use std::fs::File;
-use std::io::Read;
-use std::path::PathBuf;
-use std::time::Duration;
+use std::{
+    env,
+    fmt::{Display, Formatter},
+    fs::File,
+    io::Read,
+    path::PathBuf,
+    time::Duration,
+};
 
 #[derive(serde::Deserialize)]
 pub struct Config {

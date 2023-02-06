@@ -1,13 +1,15 @@
-use super::config::Config;
-use super::quotes_storage::QuotesStorage;
+use super::{config::Config, quotes_storage::QuotesStorage};
 use log::{debug, error, info, warn};
-use quote_lib::network::{call_timed_out, read_u64, write_u64};
-use quote_lib::pow::check_auth_and_pow;
-use std::sync::Arc;
-use std::time::Duration;
-use tokio::io::AsyncWriteExt;
-use tokio::net::{TcpListener, TcpStream};
-use tokio::sync::Mutex;
+use quote_lib::{
+    network::{call_timed_out, read_u64, write_u64},
+    pow::check_auth_and_pow,
+};
+use std::{sync::Arc, time::Duration};
+use tokio::{
+    io::AsyncWriteExt,
+    net::{TcpListener, TcpStream},
+    sync::Mutex,
+};
 
 pub struct Service {
     nonce: Arc<Mutex<u64>>,
