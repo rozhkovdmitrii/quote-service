@@ -1,0 +1,28 @@
+version: "3"
+
+services:
+
+  quote_server:
+    container_name: quote_server
+    image: rozhkovdmitrii/quotes-service:local
+    entrypoint: "quote_server listen --config config/config.yml"
+    environment:
+      CRAP_SECRET: 123
+    expose:
+      - "8081"
+    networks:
+      - net
+
+  quote_client:
+    container_name: quote_client
+    image: rozhkovdmitrii/quotes-service:local
+    entrypoint: "quote_client  get-quote --host quote_server --port 8081"
+    environment:
+      CRAP_SECRET: 123
+    networks:
+      - net
+
+networks:
+  net:
+    external: yes
+    name: local

@@ -1,10 +1,12 @@
 Dockerfile
+docker-compose.yml
 
 .git
 .github
 .gitignore
 .gitmodules
 .dockerfile
+.dockerignore
 
 target
 

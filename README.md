@@ -25,18 +25,11 @@ docker network create local
 ## Run server
 
 ```shell
-docker run --network local --rm --name quote_server -e CRAP_SECRET=123 rozhkovdmitrii/quotes-service:local quote_server listen --config config/config.yml
+docker-compose up quote_server
 ```
 
 ## Run client
 
 ```shell
-docker run --network local --rm --name quote_client -e CRAP_SECRET=123 rozhkovdmitrii/quotes-service:local quote_client get-quote --host quote_server --port 8081
+docker-compose up quote_client
 ```
-
-# Run with docker compose
-
-
-
-
-
